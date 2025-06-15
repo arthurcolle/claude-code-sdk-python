@@ -123,7 +123,7 @@ class AgentSystem:
                     "name": agent.name,
                     "role": agent.role.value,
                     "state": agent.state.value,
-                    "metrics": agent.metrics.dict()
+                    "metrics": agent.metrics.model_dump()
                 }
                 for agent in self.agents.values()
             ]
@@ -134,7 +134,8 @@ class AgentSystem:
 app = FastAPI(
     title="Complex Agent System",
     version="1.0.0",
-    description="A sophisticated multi-agent system integrated with tool registry"
+    description="A sophisticated multi-agent system integrated with tool registry",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -148,6 +149,21 @@ app.add_middleware(
 
 # Global agent system instance
 agent_system = AgentSystem()
+
+
+# Lifespan context manager
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await agent_system.initialize()
+    asyncio.create_task(agent_system.start())
+    logger.info("Agent System API started")
+    
+    yield
+    
+    # Shutdown
+    await agent_system.stop()
+    logger.info("Agent System API stopped")
 
 
 # API Models
@@ -176,21 +192,6 @@ class SystemStatus(BaseModel):
 
 
 # API Endpoints
-@app.on_event("startup")
-async def startup_event():
-    """Initialize system on startup."""
-    await agent_system.initialize()
-    asyncio.create_task(agent_system.start())
-    logger.info("Agent System API started")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown."""
-    await agent_system.stop()
-    logger.info("Agent System API stopped")
-
-
 @app.get("/")
 async def root():
     """Root endpoint."""
@@ -280,7 +281,7 @@ async def get_agent(agent_id: str):
         "role": agent.role.value,
         "capabilities": [cap.value for cap in agent.capabilities],
         "state": agent.state.value,
-        "metrics": agent.metrics.dict(),
+        "metrics": agent.metrics.model_dump(),
         "knowledge_base": agent.knowledge_base
     }
 

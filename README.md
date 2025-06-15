@@ -4,8 +4,10 @@ Python SDK for Claude Code with WebSocket server and multi-agent system support.
 
 ## New Features
 
+- **OAuth Authentication**: Claude Code Max users can authenticate without API keys
 - **WebSocket Server**: Real-time bidirectional communication with streaming support
 - **Agent System Integration**: Build multi-agent applications with specialized AI agents
+- **Tool Management API**: Discover, create, and execute tools from a registry
 - **Enhanced Error Handling**: Comprehensive error types and recovery mechanisms
 - **Type Safety**: Full type hints and dataclass-based message types
 
@@ -39,6 +41,46 @@ async def main():
 
 anyio.run(main)
 ```
+
+## Authentication
+
+### OAuth Authentication (Claude Code Max)
+
+Claude Code Max plan users can authenticate using OAuth without API keys:
+
+```bash
+# Login via CLI
+claude-auth login
+
+# Check authentication status
+claude-auth status
+```
+
+Use in Python:
+
+```python
+from claude_code_sdk import query_with_oauth
+
+async for message in query_with_oauth(prompt="Hello Claude!"):
+    print(message)
+```
+
+### API Key Authentication
+
+Traditional API key authentication:
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+```
+
+```python
+from claude_code_sdk import query
+
+async for message in query(prompt="Hello Claude!"):
+    print(message)
+```
+
+See the [Authentication Guide](docs/authentication.md) for more details.
 
 ## Usage
 

@@ -556,7 +556,11 @@ class ValidatorAgent(BaseAgent):
                 await asyncio.sleep(300)  # Check every 5 minutes
                 
             except Exception as e:
-                self.logger.error(f"Error in periodic validation: {e}")
+                # Only log as warning for 404 errors, as pending tools endpoint might not exist
+                if "404" in str(e):
+                    self.logger.debug("Pending tools endpoint not available - skipping validation check")
+                else:
+                    self.logger.error(f"Error in periodic validation: {e}")
                 await asyncio.sleep(60)  # Wait before retry
     
     async def cleanup(self):

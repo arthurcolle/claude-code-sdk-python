@@ -27,6 +27,8 @@ keywords = ["claude", "ai", "sdk", "anthropic"]
 dependencies = [
     "anyio>=4.0.0",
     "typing_extensions>=4.0.0; python_version<'3.11'",
+    "httpx>=0.25.0",
+    "aiohttp>=3.9.0",
 ]
 
 [project.optional-dependencies]
@@ -48,6 +50,9 @@ websocket = [
 Homepage = "https://github.com/anthropics/claude-code-sdk-python"
 Documentation = "https://docs.anthropic.com/en/docs/claude-code/sdk"
 Issues = "https://github.com/anthropics/claude-code-sdk-python/issues"
+
+[project.scripts]
+claude-auth = "claude_code_sdk.cli_auth:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/claude_code_sdk"]
