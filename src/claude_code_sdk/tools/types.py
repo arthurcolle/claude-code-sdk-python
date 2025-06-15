@@ -1,14 +1,15 @@
 """Type definitions for Tool Management API."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Literal
 
-from typing_extensions import TypedDict, NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 
 class ToolActionType(str, Enum):
     """Tool action types."""
+
     HTTP = "http"
     PYTHON = "python"
     JAVASCRIPT = "javascript"
@@ -17,6 +18,7 @@ class ToolActionType(str, Enum):
 
 class ToolOutputType(str, Enum):
     """Tool output types."""
+
     JSON = "json"
     TEXT = "text"
     BINARY = "binary"
@@ -25,6 +27,7 @@ class ToolOutputType(str, Enum):
 
 class HTTPActionConfig(TypedDict):
     """HTTP action configuration."""
+
     method: str
     url: str
     headers: NotRequired[dict[str, str]]
@@ -32,18 +35,21 @@ class HTTPActionConfig(TypedDict):
 
 class PythonActionConfig(TypedDict):
     """Python action configuration."""
+
     code: str
     function_name: str
 
 
 class JavaScriptActionConfig(TypedDict):
     """JavaScript action configuration."""
+
     code: str
     function_name: str
 
 
 class ServiceActionConfig(TypedDict):
     """Service action configuration."""
+
     service_id: str
     endpoint_path: str
     endpoint_method: str
@@ -53,6 +59,7 @@ class ServiceActionConfig(TypedDict):
 @dataclass
 class ToolAction:
     """Tool action configuration."""
+
     type: ToolActionType
     http: HTTPActionConfig | None = None
     python: PythonActionConfig | None = None
@@ -63,6 +70,7 @@ class ToolAction:
 @dataclass
 class ToolOutput:
     """Tool output configuration."""
+
     type: ToolOutputType
     content: str = ""
 
@@ -70,6 +78,7 @@ class ToolOutput:
 @dataclass
 class Tool:
     """Tool definition."""
+
     name: str
     description: str
     input_schema: dict[str, Any]
@@ -84,6 +93,7 @@ class Tool:
 @dataclass
 class ToolResponse:
     """Tool response from API."""
+
     id: str
     name: str
     description: str
@@ -97,6 +107,7 @@ class ToolResponse:
 @dataclass
 class ToolSearchRequest:
     """Tool search request."""
+
     query: str
     limit: int = 5
     strategy: Literal["vector_similarity", "text"] = "vector_similarity"
@@ -105,6 +116,7 @@ class ToolSearchRequest:
 @dataclass
 class ToolSearchResponse:
     """Tool search response."""
+
     id: str
     name: str
     description: str
@@ -120,6 +132,7 @@ class ToolSearchResponse:
 @dataclass
 class EmbeddingResponse:
     """Tool embedding response."""
+
     id: str
     name: str
     embedding: list[float]
@@ -128,6 +141,7 @@ class EmbeddingResponse:
 @dataclass
 class ToolExecutionRequest:
     """Tool execution request."""
+
     input_data: dict[str, Any]
     tool_id: str | None = None
     tool_name: str | None = None
@@ -138,6 +152,7 @@ class ToolExecutionRequest:
 @dataclass
 class ToolExecutionResponse:
     """Tool execution response."""
+
     tool_id: str
     output_data: dict[str, Any]
 
@@ -145,6 +160,7 @@ class ToolExecutionResponse:
 @dataclass
 class ToolIdentifier:
     """Tool identifier."""
+
     id: str | None = None
     name: str | None = None
 
@@ -152,6 +168,7 @@ class ToolIdentifier:
 @dataclass
 class SequentialToolExecutionRequest:
     """Sequential tool execution request."""
+
     tool_ids: list[str | ToolIdentifier]
     initial_input: dict[str, Any]
 
@@ -159,6 +176,7 @@ class SequentialToolExecutionRequest:
 @dataclass
 class ParallelToolExecutionRequest:
     """Parallel tool execution request."""
+
     tool_ids: list[str | ToolIdentifier]
     input_data: dict[str, dict[str, Any]]
 
@@ -166,4 +184,5 @@ class ParallelToolExecutionRequest:
 @dataclass
 class ToolBatchRequest:
     """Tool batch creation request."""
+
     tools: list[Tool]

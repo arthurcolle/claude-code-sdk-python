@@ -72,7 +72,20 @@ class SubprocessCLITransport(Transport):
 
     def _build_command(self) -> list[str]:
         """Build CLI command with arguments."""
-        cmd = [self._cli_path, "--output-format", "stream-json", "--verbose"]
+        # Start with output format
+        cmd = [self._cli_path, "--output-format", self._options.output_format]
+
+        # Add verbose flag if enabled (default True in SDK)
+        if self._options.verbose:
+            cmd.append("--verbose")
+
+        # Add debug flag if enabled
+        if self._options.debug:
+            cmd.append("--debug")
+
+        # Add input format if not default
+        if self._options.input_format != "text":
+            cmd.extend(["--input-format", self._options.input_format])
 
         if self._options.system_prompt:
             cmd.extend(["--system-prompt", self._options.system_prompt])
@@ -110,6 +123,15 @@ class SubprocessCLITransport(Transport):
             cmd.extend(
                 ["--mcp-config", json.dumps({"mcpServers": self._options.mcp_servers})]
             )
+
+        # Add additional directories
+        if self._options.add_dirs:
+            for dir_path in self._options.add_dirs:
+                cmd.extend(["--add-dir", str(dir_path)])
+
+        # Add dangerous skip permissions flag
+        if self._options.dangerously_skip_permissions:
+            cmd.append("--dangerously-skip-permissions")
 
         cmd.extend(["--print", self._prompt])
         return cmd
