@@ -3,7 +3,7 @@
 import inspect
 import json
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Union, get_type_hints, get_args, get_origin
+from typing import Any, Callable, Optional, Union, get_type_hints, get_args, get_origin, AsyncIterator
 from collections.abc import Awaitable
 
 from .types import ToolUseBlock, ToolResultBlock

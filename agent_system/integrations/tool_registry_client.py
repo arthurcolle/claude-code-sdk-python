@@ -200,17 +200,24 @@ class ToolRegistryClient:
     
     async def get_pending_tools(self) -> List[Dict[str, Any]]:
         """Get all tools pending validation."""
-        client = await self._get_http_client()
-        response = await client.get("/tools/pending")
-        response.raise_for_status()
-        result = response.json()
-        # Handle both list and dict responses
-        if isinstance(result, list):
-            return result
-        elif isinstance(result, dict):
-            return result.get("tools", [])
-        else:
-            return []
+        try:
+            client = await self._get_http_client()
+            response = await client.get("/tools/pending")
+            response.raise_for_status()
+            result = response.json()
+            # Handle both list and dict responses
+            if isinstance(result, list):
+                return result
+            elif isinstance(result, dict):
+                return result.get("tools", [])
+            else:
+                return []
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                # Endpoint might not exist yet
+                self.logger.debug("Pending tools endpoint not found - returning empty list")
+                return []
+            raise
     
     async def get_agent_tools(self, agent_id: str) -> List[Dict[str, Any]]:
         """Get all tools created by a specific agent."""
