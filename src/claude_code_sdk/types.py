@@ -107,3 +107,9 @@ class ClaudeCodeOptions:
     model: str | None = None
     permission_prompt_tool_name: str | None = None
     cwd: str | Path | None = None
+    add_dirs: list[str | Path] = field(default_factory=list)
+    dangerously_skip_permissions: bool = False
+    debug: bool = False
+    verbose: bool = True  # SDK always uses verbose mode by default
+    output_format: Literal["text", "json", "stream-json"] = "stream-json"
+    input_format: Literal["text", "stream-json"] = "text"

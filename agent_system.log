@@ -1,0 +1,101 @@
+/Users/agent/claude-code-sdk-python/agent_system/app.py:178: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+/Users/agent/claude-code-sdk-python/agent_system/app.py:186: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [56557]
+INFO:     Waiting for application startup.
+2025-06-14 21:47:34,716 - __main__ - INFO - Initializing Agent System
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Researcher1_0 (researcher)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Researcher1_1 (researcher)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Coder1_0 (coder)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Coder1_1 (coder)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Validator1_0 (validator)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Executor1_0 (executor)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Executor1_1 (executor)
+2025-06-14 21:47:34,716 - agent.MainOrchestrator - INFO - Registered agent: Executor1_2 (executor)
+2025-06-14 21:47:34,716 - __main__ - INFO - Initialized 9 agents
+2025-06-14 21:47:34,716 - __main__ - INFO - Agent System API started
+2025-06-14 21:47:34,716 - __main__ - INFO - Agent System started
+INFO:     Application startup complete.
+2025-06-14 21:47:34,717 - agent.MainOrchestrator - INFO - Initializing Orchestrator Agent
+2025-06-14 21:47:34,717 - agent.MainOrchestrator - INFO - Agent MainOrchestrator started with role orchestrator
+2025-06-14 21:47:34,717 - agent.Researcher1_0 - INFO - Initializing Researcher Agent
+2025-06-14 21:47:34,743 - agent.Researcher1_1 - INFO - Initializing Researcher Agent
+2025-06-14 21:47:34,747 - agent.Coder1_0 - INFO - Initializing Coder Agent
+2025-06-14 21:47:34,751 - agent.Coder1_1 - INFO - Initializing Coder Agent
+2025-06-14 21:47:34,755 - agent.Validator1_0 - INFO - Initializing Validator Agent
+2025-06-14 21:47:34,755 - agent.Validator1_0 - INFO - Agent Validator1_0 started with role validator
+2025-06-14 21:47:34,756 - agent.Executor1_0 - INFO - Initializing Executor Agent
+2025-06-14 21:47:34,760 - agent.Executor1_1 - INFO - Initializing Executor Agent
+2025-06-14 21:47:34,765 - agent.Executor1_2 - INFO - Initializing Executor Agent
+2025-06-14 21:47:34,769 - agent.MainOrchestrator - INFO - System health: healthy
+INFO:     Uvicorn running on http://0.0.0.0:8888 (Press CTRL+C to quit)
+2025-06-14 21:47:34,775 - agent.Researcher1_0 - ERROR - Failed to connect to tool registry: All connection attempts failed
+2025-06-14 21:47:34,775 - agent.Researcher1_0 - INFO - Agent Researcher1_0 started with role researcher
+2025-06-14 21:47:34,776 - agent.Researcher1_1 - ERROR - Failed to connect to tool registry: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Researcher1_1 - INFO - Agent Researcher1_1 started with role researcher
+2025-06-14 21:47:34,776 - agent.Coder1_0 - ERROR - Tool registry connection failed: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Coder1_0 - INFO - Agent Coder1_0 started with role coder
+2025-06-14 21:47:34,776 - agent.Coder1_1 - ERROR - Tool registry connection failed: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Coder1_1 - INFO - Agent Coder1_1 started with role coder
+2025-06-14 21:47:34,776 - agent.Executor1_0 - ERROR - Failed to connect to tool registry: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Executor1_0 - INFO - Agent Executor1_0 started with role executor
+2025-06-14 21:47:34,776 - agent.Executor1_1 - ERROR - Failed to connect to tool registry: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Executor1_1 - INFO - Agent Executor1_1 started with role executor
+2025-06-14 21:47:34,776 - agent.Executor1_2 - ERROR - Failed to connect to tool registry: All connection attempts failed
+2025-06-14 21:47:34,776 - agent.Executor1_2 - INFO - Agent Executor1_2 started with role executor
+2025-06-14 21:47:34,776 - agent.Validator1_0 - ERROR - Error in periodic validation: All connection attempts failed
+INFO:     127.0.0.1:54994 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55033 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55052 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55052 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55052 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55052 - "GET /doxs HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55052 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55052 - "GET /openapi.json HTTP/1.1" 200 OK
+/Users/agent/claude-code-sdk-python/agent_system/app.py:125: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+  "metrics": agent.metrics.dict()
+INFO:     127.0.0.1:55075 - "GET /status HTTP/1.1" 200 OK
+2025-06-14 21:48:34,769 - agent.MainOrchestrator - INFO - System health: healthy
+2025-06-14 21:48:34,776 - agent.Validator1_0 - ERROR - Error in periodic validation: All connection attempts failed
+INFO:     127.0.0.1:55116 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55236 - "POST /tasks HTTP/1.1" 422 Unprocessable Entity
+2025-06-14 21:49:26,285 - agent.MainOrchestrator - INFO - Task 803c62e7-59c6-4886-8c52-b3cba3f4fbb9 assigned to agent MainOrchestrator
+INFO:     127.0.0.1:55282 - "POST /tasks HTTP/1.1" 200 OK
+2025-06-14 21:49:26,285 - agent.MainOrchestrator - INFO - Processing orchestration task: Test Web Search
+2025-06-14 21:49:26,290 - agent.Researcher1_0 - INFO - Task 803c62e7-59c6-4886-8c52-b3cba3f4fbb9 assigned to agent Researcher1_0
+2025-06-14 21:49:26,291 - agent.Researcher1_0 - INFO - Processing research task: Test Web Search
+2025-06-14 21:49:26,291 - agent.Researcher1_0 - INFO - Searching for: autonomous AI agents frameworks
+2025-06-14 21:49:26,292 - agent.Researcher1_0 - ERROR - Web search failed: All connection attempts failed
+2025-06-14 21:49:34,768 - agent.MainOrchestrator - INFO - System health: healthy
+2025-06-14 21:49:34,777 - agent.Validator1_0 - ERROR - Error in periodic validation: All connection attempts failed
+INFO:     127.0.0.1:55333 - "POST /examples/research-and-create-tool HTTP/1.1" 422 Unprocessable Entity
+2025-06-14 21:50:18,857 - agent.MainOrchestrator - INFO - Task 9877776f-bc99-4939-ac74-e41f17c437dc assigned to agent MainOrchestrator
+INFO:     127.0.0.1:55430 - "POST /examples/research-and-create-tool?topic=machine%20learning&tool_type=python HTTP/1.1" 200 OK
+2025-06-14 21:50:34,768 - agent.MainOrchestrator - INFO - System health: healthy
+2025-06-14 21:50:34,778 - agent.Validator1_0 - ERROR - Error in periodic validation: All connection attempts failed
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-06-14 21:51:00,378 - agent.MainOrchestrator - INFO - Agent MainOrchestrator shutting down
+2025-06-14 21:51:00,378 - agent.Researcher1_0 - INFO - Agent Researcher1_0 shutting down
+2025-06-14 21:51:00,378 - agent.Researcher1_1 - INFO - Agent Researcher1_1 shutting down
+2025-06-14 21:51:00,378 - agent.Coder1_0 - INFO - Agent Coder1_0 shutting down
+2025-06-14 21:51:00,378 - agent.Coder1_1 - INFO - Agent Coder1_1 shutting down
+2025-06-14 21:51:00,378 - agent.Validator1_0 - INFO - Agent Validator1_0 shutting down
+2025-06-14 21:51:00,378 - agent.Executor1_0 - INFO - Agent Executor1_0 shutting down
+2025-06-14 21:51:00,378 - agent.Executor1_1 - INFO - Agent Executor1_1 shutting down
+2025-06-14 21:51:00,378 - agent.Executor1_2 - INFO - Agent Executor1_2 shutting down
+2025-06-14 21:51:00,378 - __main__ - INFO - Agent System stopped
+2025-06-14 21:51:00,379 - __main__ - INFO - Agent System API stopped
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56557]

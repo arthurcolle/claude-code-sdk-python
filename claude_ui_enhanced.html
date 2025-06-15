@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code WebSocket UI - Enhanced</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .header {
+            background: #161b22;
+            padding: 1rem;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            color: #58a6ff;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f85149;
+        }
+        
+        .status-dot.connected {
+            background: #3fb950;
+        }
+        
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background: #1f6feb;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+        }
+        
+        .message.system {
+            align-self: center;
+            background: #21262d;
+            border-color: #8b949e;
+            font-size: 0.9rem;
+            max-width: 60%;
+        }
+        
+        .message-header {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-content {
+            line-height: 1.5;
+        }
+        
+        .message-content pre {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .message-content code {
+            background: #21262d;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .tool-block {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .tool-block-header {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .tool-result {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .tool-result.error {
+            border-color: #f85149;
+            color: #f85149;
+        }
+        
+        .input-container {
+            border-top: 1px solid #30363d;
+            padding: 1rem;
+            background: #161b22;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: #c9d1d9;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 50px;
+            max-height: 200px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        
+        .send-btn, .interrupt-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+        }
+        
+        .send-btn:hover {
+            background: #2ea043;
+        }
+        
+        .send-btn:disabled {
+            background: #21262d;
+            color: #8b949e;
+            cursor: not-allowed;
+        }
+        
+        .interrupt-btn {
+            background: #f85149;
+            display: none;
+        }
+        
+        .interrupt-btn:hover {
+            background: #da3633;
+        }
+        
+        .interrupt-btn.visible {
+            display: flex;
+        }
+        
+        .options-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .options-section h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #58a6ff;
+        }
+        
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        
+        .option-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #8b949e;
+            margin-bottom: 0.25rem;
+        }
+        
+        .option-select, .option-input {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: #c9d1d9;
+            font-size: 0.9rem;
+        }
+        
+        .option-select:focus, .option-input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .tool-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .tool-checkbox:hover {
+            background: #21262d;
+            border-radius: 4px;
+        }
+        
+        .tool-checkbox input {
+            cursor: pointer;
+        }
+        
+        .tool-checkbox label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #c9d1d9;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .capabilities {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #21262d;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .capability {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.25rem 0;
+        }
+        
+        .capability-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3fb950;
+        }
+        
+        .capability-icon.disabled {
+            background: #8b949e;
+        }
+        
+        .tool-definition-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #30363d;
+        }
+        
+        .tool-definition-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .tool-definition-form textarea {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: #c9d1d9;
+            font-family: monospace;
+            font-size: 0.8rem;
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .define-tool-btn {
+            background: #1f6feb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .define-tool-btn:hover {
+            background: #388bfd;
+        }
+        
+        .define-tool-btn:disabled {
+            background: #21262d;
+            color: #8b949e;
+            cursor: not-allowed;
+        }
+        
+        .input-status {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Claude Code WebSocket UI - Enhanced</h1>
+        <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Disconnected</span>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="options-section">
+                <h3>Options</h3>
+                
+                <div class="option-group">
+                    <label class="option-label">Model</label>
+                    <select class="option-select" id="modelSelect">
+                        <option value="">Default</option>
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Permission Mode</label>
+                    <select class="option-select" id="permissionMode">
+                        <option value="default">Default</option>
+                        <option value="acceptEdits">Accept Edits</option>
+                        <option value="bypassPermissions">Bypass Permissions</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Max Thinking Tokens</label>
+                    <input type="number" class="option-input" id="maxThinkingTokens" value="8000" min="0" max="100000">
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Working Directory</label>
+                    <input type="text" class="option-input" id="cwdInput" placeholder="Leave empty for default">
+                </div>
+                
+                <div class="option-group">
+                    <label class="option-label">Allowed Tools</label>
+                    <div class="tools-list" id="toolsList">
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Read" value="Read" checked>
+                            <label for="tool-Read">Read</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Write" value="Write">
+                            <label for="tool-Write">Write</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Edit" value="Edit">
+                            <label for="tool-Edit">Edit</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Bash" value="Bash">
+                            <label for="tool-Bash">Bash</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Task" value="Task">
+                            <label for="tool-Task">Task</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Grep" value="Grep">
+                            <label for="tool-Grep">Grep</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-Glob" value="Glob">
+                            <label for="tool-Glob">Glob</label>
+                        </div>
+                        <div class="tool-checkbox">
+                            <input type="checkbox" id="tool-LS" value="LS">
+                            <label for="tool-LS">LS</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="capabilities" id="capabilities">
+                <h3>Server Capabilities</h3>
+                <div class="capability">
+                    <span class="capability-icon disabled" id="cap-concurrent"></span>
+                    <span>Concurrent Input</span>
+                </div>
+                <div class="capability">
+                    <span class="capability-icon disabled" id="cap-tools"></span>
+                    <span>Tool Definition</span>
+                </div>
+                <div class="capability">
+                    <span class="capability-icon disabled" id="cap-interrupt"></span>
+                    <span>Query Interruption</span>
+                </div>
+            </div>
+            
+            <div class="tool-definition-section" id="toolDefSection" style="display: none;">
+                <h3>Define New Tool</h3>
+                <div class="tool-definition-form">
+                    <textarea id="toolDefinition" placeholder='{"name": "MyTool", "description": "Tool description", "parameters": {...}}'></textarea>
+                    <button class="define-tool-btn" id="defineToolBtn">Define Tool</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea class="input-field" id="promptInput" placeholder="Type your message..." rows="2"></textarea>
+                    <button class="send-btn" id="sendBtn">Send</button>
+                    <button class="interrupt-btn" id="interruptBtn">Interrupt</button>
+                </div>
+                <div class="input-status" id="inputStatus"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let isConnected = false;
+        let isQuerying = false;
+        let sessionId = null;
+        let serverCapabilities = {};
+        
+        // DOM elements
+        const messagesDiv = document.getElementById('messages');
+        const promptInput = document.getElementById('promptInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const interruptBtn = document.getElementById('interruptBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const inputStatus = document.getElementById('inputStatus');
+        const defineToolBtn = document.getElementById('defineToolBtn');
+        const toolDefinition = document.getElementById('toolDefinition');
+        const toolDefSection = document.getElementById('toolDefSection');
+        
+        // Initialize marked options
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true
+        });
+        
+        // Connect to WebSocket
+        function connect() {
+            const wsUrl = `ws://${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                isConnected = true;
+                updateConnectionStatus(true);
+                updateUI();
+            };
+            
+            ws.onclose = () => {
+                isConnected = false;
+                isQuerying = false;
+                updateConnectionStatus(false);
+                updateUI();
+                
+                // Attempt to reconnect after 2 seconds
+                setTimeout(connect, 2000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                addSystemMessage('Connection error occurred', 'error');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+        }
+        
+        // Handle incoming messages
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'connection_established':
+                    sessionId = data.data.session_id;
+                    serverCapabilities = data.data.capabilities || {};
+                    updateCapabilities();
+                    addSystemMessage(`Connected to server (Session: ${sessionId})`);
+                    break;
+                    
+                case 'query_start':
+                    isQuerying = true;
+                    updateUI();
+                    break;
+                    
+                case 'query_end':
+                case 'query_interrupted':
+                case 'query_cancelled':
+                    isQuerying = false;
+                    updateUI();
+                    if (data.type === 'query_interrupted') {
+                        addSystemMessage('Query interrupted by user');
+                    }
+                    break;
+                    
+                case 'assistant_message':
+                    addAssistantMessage(data.data.content);
+                    break;
+                    
+                case 'system_message':
+                    handleSystemMessage(data.data);
+                    break;
+                    
+                case 'result_message':
+                    handleResultMessage(data.data);
+                    break;
+                    
+                case 'error':
+                    addSystemMessage(`Error: ${data.data.error}`, 'error');
+                    isQuerying = false;
+                    updateUI();
+                    break;
+                    
+                case 'input_acknowledged':
+                    inputStatus.textContent = `Input received: "${data.data.text}"`;
+                    setTimeout(() => {
+                        inputStatus.textContent = '';
+                    }, 2000);
+                    break;
+                    
+                case 'tool_defined':
+                    addSystemMessage(`Tool defined: ${data.data.tool_name} (ID: ${data.data.tool_id})`);
+                    toolDefinition.value = '';
+                    break;
+                    
+                case 'tools_list':
+                    console.log('Available tools:', data.data.tools);
+                    break;
+            }
+        }
+        
+        // Update capabilities display
+        function updateCapabilities() {
+            document.getElementById('cap-concurrent').className = 
+                'capability-icon' + (serverCapabilities.concurrent_input ? '' : ' disabled');
+            document.getElementById('cap-tools').className = 
+                'capability-icon' + (serverCapabilities.tool_definition ? '' : ' disabled');
+            document.getElementById('cap-interrupt').className = 
+                'capability-icon' + (serverCapabilities.interrupt_query ? '' : ' disabled');
+            
+            // Show tool definition section if available
+            if (serverCapabilities.tool_definition) {
+                toolDefSection.style.display = 'block';
+            }
+        }
+        
+        // Add messages to chat
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-header">You</div>
+                <div class="message-content">${escapeHtml(text)}</div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function addAssistantMessage(content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            
+            let html = '<div class="message-header">Claude</div><div class="message-content">';
+            
+            for (const block of content) {
+                if (block.type === 'text') {
+                    html += marked.parse(block.text);
+                } else if (block.type === 'tool_use') {
+                    html += `
+                        <div class="tool-block">
+                            <div class="tool-block-header">🛠️ Using ${block.name}</div>
+                            <pre>${JSON.stringify(block.input, null, 2)}</pre>
+                        </div>
+                    `;
+                } else if (block.type === 'tool_result') {
+                    const errorClass = block.is_error ? ' error' : '';
+                    html += `
+                        <div class="tool-result${errorClass}">
+                            ${escapeHtml(block.content)}
+                        </div>
+                    `;
+                }
+            }
+            
+            html += '</div>';
+            messageDiv.innerHTML = html;
+            messagesDiv.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function addSystemMessage(text, subtype = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function handleSystemMessage(data) {
+            if (data.subtype === 'info' || data.subtype === 'error') {
+                addSystemMessage(JSON.stringify(data), data.subtype);
+            }
+        }
+        
+        function handleResultMessage(data) {
+            let message = `Query completed`;
+            if (data.cost_usd) {
+                message += ` - Cost: $${data.cost_usd.toFixed(4)}`;
+            }
+            if (data.duration_ms) {
+                message += ` - Duration: ${(data.duration_ms / 1000).toFixed(2)}s`;
+            }
+            if (data.num_turns) {
+                message += ` - Turns: ${data.num_turns}`;
+            }
+            addSystemMessage(message);
+        }
+        
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function scrollToBottom() {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function updateConnectionStatus(connected) {
+            statusDot.classList.toggle('connected', connected);
+            statusText.textContent = connected ? 'Connected' : 'Disconnected';
+        }
+        
+        // Send query
+        async function sendQuery() {
+            const prompt = promptInput.value.trim();
+            if (!prompt || !isConnected) return;
+            
+            // Get selected tools
+            const selectedTools = [];
+            document.querySelectorAll('.tool-checkbox input:checked').forEach(checkbox => {
+                selectedTools.push(checkbox.value);
+            });
+            
+            // Build options
+            const options = {
+                allowed_tools: selectedTools,
+                permission_mode: document.getElementById('permissionMode').value,
+                max_thinking_tokens: parseInt(document.getElementById('maxThinkingTokens').value),
+                model: document.getElementById('modelSelect').value || undefined,
+                cwd: document.getElementById('cwdInput').value || undefined
+            };
+            
+            // Add user message to chat
+            addUserMessage(prompt);
+            
+            // Send query
+            ws.send(JSON.stringify({
+                type: 'query',
+                prompt: prompt,
+                options: options
+            }));
+            
+            // Clear input but keep it enabled for concurrent input
+            promptInput.value = '';
+            
+            // Show input status
+            if (serverCapabilities.concurrent_input) {
+                inputStatus.textContent = 'You can continue typing during the query...';
+            }
+        }
+        
+        // Send input during query
+        async function sendInput() {
+            if (!isConnected || !isQuerying || !serverCapabilities.concurrent_input) return;
+            
+            const text = promptInput.value.trim();
+            if (!text) return;
+            
+            ws.send(JSON.stringify({
+                type: 'input',
+                text: text
+            }));
+            
+            promptInput.value = '';
+        }
+        
+        // Interrupt query
+        async function interruptQuery() {
+            if (!isConnected || !isQuerying) return;
+            
+            ws.send(JSON.stringify({
+                type: 'interrupt'
+            }));
+        }
+        
+        // Define tool
+        async function defineTool() {
+            if (!isConnected || !serverCapabilities.tool_definition) return;
+            
+            try {
+                const toolData = JSON.parse(toolDefinition.value);
+                ws.send(JSON.stringify({
+                    type: 'define_tool',
+                    tool: toolData
+                }));
+            } catch (e) {
+                addSystemMessage(`Invalid tool definition: ${e.message}`, 'error');
+            }
+        }
+        
+        // Update UI state
+        function updateUI() {
+            // Enable input during queries if server supports it
+            if (serverCapabilities.concurrent_input) {
+                sendBtn.disabled = !isConnected;
+                promptInput.disabled = !isConnected;
+                
+                // Change send button behavior during query
+                if (isQuerying) {
+                    sendBtn.textContent = 'Send Input';
+                    sendBtn.onclick = sendInput;
+                    interruptBtn.classList.add('visible');
+                } else {
+                    sendBtn.textContent = 'Send Query';
+                    sendBtn.onclick = sendQuery;
+                    interruptBtn.classList.remove('visible');
+                }
+            } else {
+                // Legacy behavior - disable during queries
+                sendBtn.disabled = !isConnected || isQuerying;
+                promptInput.disabled = !isConnected || isQuerying;
+                sendBtn.onclick = sendQuery;
+                
+                if (isQuerying) {
+                    sendBtn.innerHTML = '<span class="loading"></span>';
+                } else {
+                    sendBtn.textContent = 'Send';
+                }
+            }
+            
+            defineToolBtn.disabled = !isConnected || !serverCapabilities.tool_definition;
+        }
+        
+        // Event listeners
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (isQuerying && serverCapabilities.concurrent_input) {
+                    sendInput();
+                } else {
+                    sendQuery();
+                }
+            }
+        });
+        
+        interruptBtn.onclick = interruptQuery;
+        defineToolBtn.onclick = defineTool;
+        
+        // Initialize
+        connect();
+        updateUI();
+        
+        // Focus on input
+        promptInput.focus();
+    </script>
+</body>
+</html>
