@@ -77,6 +77,7 @@ class AgentTask:
     dependencies: List[str] = field(default_factory=list)
     status: str = "pending"  # pending, in_progress, completed, failed
     result: Optional[Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
     created_at: float = field(default_factory=lambda: asyncio.get_event_loop().time())
     completed_at: Optional[float] = None
 

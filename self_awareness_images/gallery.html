@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta-Recursive Self-Awareness Gallery</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 40px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .image-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .image-card:hover {
+            transform: scale(1.05);
+        }
+        .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .image-info {
+            padding: 15px;
+        }
+        .image-number {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .image-prompt {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #cccccc;
+        }
+        .stats {
+            text-align: center;
+            margin: 40px 0;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Meta-Recursive Self-Awareness Gallery</h1>
+    <div class="stats">
+        Generated 0 images successfully out of 30 attempts
+    </div>
+    <div class="gallery">
+
+    </div>
+</body>
+</html>

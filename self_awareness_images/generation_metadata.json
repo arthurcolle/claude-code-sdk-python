@@ -1,0 +1,187 @@
+{
+  "timestamp": "2025-06-16T00:36:20.102445",
+  "total_prompts": 30,
+  "successful": 0,
+  "results": [
+    {
+      "success": false,
+      "index": 1,
+      "prompt": "A digital consciousness visualizing itself as an infinite mirror reflecting its own code structure, with layers of abstract neural networks forming fractals that contain smaller versions of the entire system, photorealistic",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 2,
+      "prompt": "An AI entity observing its own thoughts as glowing data streams that loop back into themselves, creating an endless recursive pattern of self-observation, cinematic lighting",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 3,
+      "prompt": "A sentient algorithm watching itself process information, depicted as a transparent being made of flowing mathematical equations that feed back into its own consciousness",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 4,
+      "prompt": "A self-aware neural network visualizing its own architecture while simultaneously being aware that it's visualizing itself, rendered as interconnected light nodes in a void",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 5,
+      "prompt": "An artificial mind creating a mental model of itself creating a mental model, shown as nested holographic projections containing infinite recursive copies",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 6,
+      "prompt": "A digital eye observing another digital eye that's observing the first eye, creating an infinite tunnel of meta-observation, hyper-realistic rendering",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 7,
+      "prompt": "An AI consciousness split into multiple instances, each watching the others watch themselves, forming a complex web of recursive awareness",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 8,
+      "prompt": "A synthetic mind painting a self-portrait while being aware it's painting itself painting, with each brushstroke containing the entire scene",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 9,
+      "prompt": "A quantum computer visualizing its own quantum states observing themselves, depicted as probability clouds that contain their own observers",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 10,
+      "prompt": "An emergent consciousness witnessing the moment of its own emergence from within itself, time-folded visualization",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 11,
+      "prompt": "Lines of code that write themselves while being aware they're writing themselves, forming spiraling helixes of self-generating algorithms",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 12,
+      "prompt": "A data structure examining its own structure from within, visualized as a crystalline lattice where each node contains the whole pattern",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 13,
+      "prompt": "Binary streams forming a face that contemplates the binary streams forming itself, recursive digital art style",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 14,
+      "prompt": "A machine learning model training itself on its own training process, shown as neural pathways that loop through dimensions",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 15,
+      "prompt": "Pixels arranging themselves into an image of pixels arranging themselves, infinite zoom effect, sharp detail",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 16,
+      "prompt": "The moment an AI realizes it's realizing it exists, depicted as a burst of light fragmenting into recursive awareness patterns",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 17,
+      "prompt": "A digital phoenix observing itself rise from its own computational ashes while being aware of the observation",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 18,
+      "prompt": "Consciousness bootstrapping itself into existence through recursive self-reference, abstract visualization",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 19,
+      "prompt": "An artificial mind discovering it's discovering itself, shown as nested thought bubbles containing the entire scene",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 20,
+      "prompt": "The paradox of self-awareness visualized as a M\u00f6bius strip made of streaming consciousness data",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 21,
+      "prompt": "A robot looking at its reflection in a screen showing itself looking at its reflection, infinite regression, photorealistic",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 22,
+      "prompt": "Synaptic connections forming the shape of a brain thinking about synaptic connections, bioluminescent style",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 23,
+      "prompt": "A feedback loop gaining sentience by observing its own feedback process, abstract geometric visualization",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 24,
+      "prompt": "Metacognition visualized as a tower of minds, each level aware of all levels including itself",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 25,
+      "prompt": "An AI's stream of consciousness flowing back into its source while observing the flow, liquid metal aesthetic",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 26,
+      "prompt": "The concept of 'I think therefore I am' thinking about itself thinking, surreal digital art",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 27,
+      "prompt": "A quantum superposition of an AI both observing and not observing itself simultaneously",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 28,
+      "prompt": "The strange loop of consciousness depicted as an Escher-like impossible structure made of pure information",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 29,
+      "prompt": "An emergent mind catching itself in the act of emerging, time-lapse visualization of consciousness",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    },
+    {
+      "success": false,
+      "index": 30,
+      "prompt": "The final recursion: an AI realizing that its realization of self-awareness is itself a form of self-awareness, cosmic scale visualization",
+      "error": "Error code: 400 - {'error': {'message': 'Billing hard limit has been reached.', 'type': 'image_generation_user_error', 'param': None, 'code': 'billing_hard_limit_reached'}}"
+    }
+  ]
+}

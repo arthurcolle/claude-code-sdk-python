@@ -84,15 +84,17 @@ class InternalClient:
 
             case "result":
                 # Map total_cost to total_cost_usd for consistency
+                # Handle both cost_usd and cost fields for backward compatibility
+                cost = data.get("cost_usd", data.get("cost", 0.0))
                 return ResultMessage(
                     subtype=data["subtype"],
-                    cost_usd=data["cost_usd"],
-                    duration_ms=data["duration_ms"],
-                    duration_api_ms=data["duration_api_ms"],
-                    is_error=data["is_error"],
-                    num_turns=data["num_turns"],
-                    session_id=data["session_id"],
-                    total_cost_usd=data["total_cost"],
+                    cost_usd=cost,
+                    duration_ms=data.get("duration_ms", 0),
+                    duration_api_ms=data.get("duration_api_ms", 0),
+                    is_error=data.get("is_error", False),
+                    num_turns=data.get("num_turns", 0),
+                    session_id=data.get("session_id", ""),
+                    total_cost_usd=data.get("total_cost", cost),
                     usage=data.get("usage"),
                     result=data.get("result"),
                 )

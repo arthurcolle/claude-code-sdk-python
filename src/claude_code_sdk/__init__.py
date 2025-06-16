@@ -173,9 +173,17 @@ from .tools_api import (
     query_with_tools,
 )
 
-# Lazy import for tools module
+# Lazy import for tools and notebook_utils modules
 if TYPE_CHECKING:
     from . import tools
+    from . import notebook_utils
+    from . import conversation_manager
+    from . import conversation_templates
+    from . import conversation_chains
+    from . import training_data
+    from . import training_collector
+    from . import training_generator
+    from . import training_export
 
 __version__ = "0.0.10"
 
@@ -337,6 +345,17 @@ __all__ = [
     "query_with_tools",
     # Tools module (lazy import)
     "tools",
+    # Notebook utilities (lazy import)
+    "notebook_utils",
+    # Conversation management (lazy import)
+    "conversation_manager",
+    "conversation_templates", 
+    "conversation_chains",
+    # Training data (lazy import)
+    "training_data",
+    "training_collector",
+    "training_generator",
+    "training_export",
 ]
 
 
@@ -556,9 +575,32 @@ async def version(cli_path: str | Path | None = None) -> str:
 
 
 def __getattr__(name: str) -> Any:
-    """Lazy import for tools module."""
+    """Lazy import for tools and notebook_utils modules."""
     if name == "tools":
         from . import tools
-
         return tools
+    elif name == "notebook_utils":
+        from . import notebook_utils
+        return notebook_utils
+    elif name == "conversation_manager":
+        from . import conversation_manager
+        return conversation_manager
+    elif name == "conversation_templates":
+        from . import conversation_templates
+        return conversation_templates
+    elif name == "conversation_chains":
+        from . import conversation_chains
+        return conversation_chains
+    elif name == "training_data":
+        from . import training_data
+        return training_data
+    elif name == "training_collector":
+        from . import training_collector
+        return training_collector
+    elif name == "training_generator":
+        from . import training_generator
+        return training_generator
+    elif name == "training_export":
+        from . import training_export
+        return training_export
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
