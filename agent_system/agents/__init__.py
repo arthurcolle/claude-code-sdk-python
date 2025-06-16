@@ -40,4 +40,5 @@ AGENT_REGISTRY = {
     "coder": CoderAgent,
     "validator": ValidatorAgent,
     "executor": ExecutorAgent,
+    "introspection": IntrospectionAgent,
 }

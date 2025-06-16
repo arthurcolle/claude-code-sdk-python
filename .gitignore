@@ -47,3 +47,32 @@ htmlcov/
 .dmypy.json
 dmypy.json
 .pyre/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Experimental and demo files
+experimental/
+*_demo.py
+*_showcase.py
+blog_*.md
+*_blog*.md
+substack_*.md
+*_oauth*.py
+*_max*.py
+claude_self_images/
+blog_images/
+suggestions.md
+GOALS.md
+OAUTH_INTERCEPTION.md
+mini_server.py
+production_oauth_server.py
+claude_max_package/
+claude_max
+test_authenticated_endpoint.py
+test_max_auth.py
+test_oauth_import.py
