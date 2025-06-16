@@ -7,9 +7,11 @@ Python SDK for Claude Code with WebSocket server and multi-agent system support.
 - **OAuth Authentication**: Claude Code Max users can authenticate without API keys
 - **WebSocket Server**: Real-time bidirectional communication with streaming support
 - **Agent System Integration**: Build multi-agent applications with specialized AI agents
+- **Multi-Turn Conversations**: Maintain context across multiple interactions with session management
 - **Tool Management API**: Discover, create, and execute tools from a registry
 - **Enhanced Error Handling**: Comprehensive error types and recovery mechanisms
 - **Type Safety**: Full type hints and dataclass-based message types
+- **Jupyter Notebook Support**: Beautiful markdown rendering and interactive displays
 
 ## Installation
 
@@ -121,6 +123,59 @@ async for message in query(
     # Process tool use and results
     pass
 ```
+
+### Multi-Turn Conversations
+
+```python
+# Method 1: Using session IDs
+session_id = None
+async for message in query(prompt="Remember my name is Alice"):
+    if isinstance(message, ResultMessage):
+        session_id = message.session_id
+
+# Continue the conversation
+async for message in query(
+    prompt="What's my name?",
+    options=ClaudeCodeOptions(resume=session_id)
+):
+    print(message)
+
+# Method 2: Auto-continue last conversation
+async for message in query(
+    prompt="What did we just discuss?",
+    options=ClaudeCodeOptions(continue_conversation=True)
+):
+    print(message)
+```
+
+See the [Multi-Turn Conversations Guide](docs/multi_turn_conversations.md) for detailed examples.
+
+### Advanced Conversation Features
+
+```python
+from claude_code_sdk.conversation_manager import ConversationManager
+from claude_code_sdk.conversation_templates import TemplateManager
+from claude_code_sdk.conversation_chains import create_debugging_chain
+
+# Managed conversations with persistence
+manager = ConversationManager()
+session_id, messages = await manager.create_conversation(
+    initial_prompt="Let's build a web app",
+    tags=["project", "web"]
+)
+
+# Use pre-built templates
+template_mgr = TemplateManager()
+template = template_mgr.get_template("code_review")
+
+# Automated workflows with chains
+debug_chain = create_debugging_chain()
+result = await debug_chain.execute(
+    context_overrides={"issue_description": "Memory leak"}
+)
+```
+
+See the [Advanced Conversation Features Guide](docs/advanced_conversation_features.md) for comprehensive documentation.
 
 ### Advanced Options
 
@@ -847,6 +902,29 @@ class CustomAgent(BaseAgent):
 ```
 
 See [docs/agent-system.md](docs/agent-system.md) for integration guide.
+
+## Jupyter Notebook Support
+
+The SDK includes special utilities for enhanced display in Jupyter notebooks:
+
+```python
+from claude_code_sdk.notebook_utils import display_claude_response, render_markdown
+
+# Beautiful markdown rendering
+async for message in query(prompt="Explain Python decorators"):
+    display_claude_response(message)
+
+# Or render markdown directly
+render_markdown("# Hello\nThis is **bold** text with `code`")
+```
+
+Features:
+- **Markdown to HTML conversion** with syntax highlighting
+- **Tool use visualization** with colored formatting
+- **Streaming support** for real-time display
+- **Automatic notebook detection**
+
+See [docs/notebook_utilities.md](docs/notebook_utilities.md) for full documentation and [examples/notebook_markdown_demo.ipynb](examples/notebook_markdown_demo.ipynb) for a complete demo.
 
 ## Examples
 
