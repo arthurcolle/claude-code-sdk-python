@@ -42,7 +42,7 @@ His architecture allowed agents to update a registry of capabilities dynamically
 
 ### Claude Code Authentication Breakthrough
 
-In December 2024, Collé made a significant breakthrough by solving Claude Code's OAuth authentication issues for Python developers. This work enabled Python developers to fully utilize their Claude Code Max subscriptions ($200/month) programmatically, rather than being restricted to API-only access with credit-based billing.
+In June 2025, Collé made a significant breakthrough by solving Claude Code's OAuth authentication issues for Python developers. This work enabled Python developers to fully utilize their Claude Code Max subscriptions ($200/month) programmatically, rather than being restricted to API-only access with credit-based billing.
 
 Key achievements:
 - Discovered and documented the OAuth 2.0 with PKCE security flow used by Claude Code

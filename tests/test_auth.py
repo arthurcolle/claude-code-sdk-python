@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, AsyncMock, patch, mock_open
 import tempfile
+import os
 
 from claude_code_sdk import (
     ClaudeAuth,
@@ -15,6 +16,7 @@ from claude_code_sdk import (
     TokenStorage,
     AuthenticationError,
 )
+from claude_code_sdk.auth import LocalCallbackServer
 
 
 class TestAuthToken:
@@ -90,10 +92,10 @@ class TestOAuthConfig:
         """Test default OAuth configuration."""
         config = OAuthConfig()
         
-        assert config.client_id == "claude-code-sdk"
-        assert config.redirect_uri == "http://localhost:8089/callback"
-        assert config.authorize_url == "https://console.anthropic.com/oauth/authorize"
-        assert config.token_url == "https://api.anthropic.com/oauth/token"
+        assert config.client_id == "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
+        assert config.redirect_uri == "http://localhost:54545/callback"
+        assert config.authorize_url == "https://claude.ai/oauth/authorize"
+        assert config.token_url == "https://claude.ai/oauth/token"
         assert config.client_secret is None
     
     def test_custom_config(self):
@@ -315,3 +317,573 @@ class TestClaudeAuth:
             
             # OAuth tokens are passed as Bearer tokens
             assert env_vars == {"ANTHROPIC_API_KEY": "Bearer oauth_token"}
+
+
+class TestLocalCallbackServer:
+    """Test OAuth callback server."""
+    
+    @pytest.mark.asyncio
+    async def test_server_startup(self):
+        """Test callback server starts correctly."""
+        server = LocalCallbackServer(port=54545)
+        await server.start()
+        
+        # Server should be running
+        assert server._server_task is not None
+        assert not server._server_task.done()
+        
+        # Clean up
+        if server._server_task:
+            server._server_task.cancel()
+    
+    @pytest.mark.asyncio
+    async def test_server_handles_success_callback(self):
+        """Test server handles successful OAuth callback."""
+        server = LocalCallbackServer(port=54546)
+        await server.start()
+        
+        try:
+            # Simulate successful callback
+            import aiohttp
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    "http://localhost:54546/callback?code=test_code&state=test_state"
+                ) as response:
+                    assert response.status == 200
+                    html = await response.text()
+                    assert "Authentication successful!" in html
+                    assert "success" in html
+            
+            # Server should have captured the code
+            assert server.auth_code == "test_code"
+            assert server.error is None
+            
+        finally:
+            if server._server_task:
+                server._server_task.cancel()
+    
+    @pytest.mark.asyncio
+    async def test_server_handles_error_callback(self):
+        """Test server handles OAuth error callback."""
+        server = LocalCallbackServer(port=54547)
+        await server.start()
+        
+        try:
+            # Simulate error callback
+            import aiohttp
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    "http://localhost:54547/callback?error=access_denied&error_description=User%20denied%20access"
+                ) as response:
+                    assert response.status == 200
+                    html = await response.text()
+                    assert "Authentication failed" in html
+                    assert "error" in html
+            
+            # Server should have captured the error
+            assert server.auth_code is None
+            assert server.error == "User denied access"
+            
+        finally:
+            if server._server_task:
+                server._server_task.cancel()
+    
+    @pytest.mark.asyncio
+    async def test_wait_for_code_success(self):
+        """Test waiting for authorization code."""
+        server = LocalCallbackServer(port=54548)
+        await server.start()
+        
+        try:
+            # Set code after a short delay
+            async def set_code():
+                await asyncio.sleep(0.1)
+                server.auth_code = "delayed_code"
+            
+            import asyncio
+            asyncio.create_task(set_code())
+            
+            # Wait for code
+            code = await server.wait_for_code(timeout=1)
+            assert code == "delayed_code"
+            
+        finally:
+            if server._server_task:
+                server._server_task.cancel()
+    
+    @pytest.mark.asyncio
+    async def test_wait_for_code_timeout(self):
+        """Test timeout while waiting for code."""
+        server = LocalCallbackServer(port=54549)
+        await server.start()
+        
+        try:
+            # Don't set any code
+            with pytest.raises(AuthenticationError, match="Authentication timeout"):
+                await server.wait_for_code(timeout=0.5)
+                
+        finally:
+            if server._server_task:
+                server._server_task.cancel()
+    
+    @pytest.mark.asyncio
+    async def test_wait_for_code_error(self):
+        """Test error while waiting for code."""
+        server = LocalCallbackServer(port=54550)
+        await server.start()
+        
+        try:
+            # Set error instead of code
+            server.error = "Test error"
+            
+            with pytest.raises(AuthenticationError, match="Authentication failed: Test error"):
+                await server.wait_for_code(timeout=1)
+                
+        finally:
+            if server._server_task:
+                server._server_task.cancel()
+
+
+class TestOAuthFlowAdvanced:
+    """Advanced OAuth flow tests."""
+    
+    @pytest.mark.asyncio
+    async def test_oauth_flow_context_manager(self):
+        """Test OAuth flow as async context manager."""
+        config = OAuthConfig()
+        flow = OAuthFlow(config)
+        
+        # Should create HTTP client on entry
+        assert flow._http_client is None
+        
+        async with flow:
+            assert flow._http_client is not None
+            assert flow.client == flow._http_client
+        
+        # Client should be closed on exit
+        # (Can't easily test this without mocking)
+    
+    @pytest.mark.asyncio
+    async def test_oauth_flow_without_context_manager(self):
+        """Test error when using flow without context manager."""
+        config = OAuthConfig()
+        flow = OAuthFlow(config)
+        
+        with pytest.raises(RuntimeError, match="OAuthFlow must be used as async context manager"):
+            _ = flow.client
+    
+    @pytest.mark.asyncio
+    async def test_exchange_code_with_client_secret(self):
+        """Test code exchange with client secret."""
+        config = OAuthConfig(client_secret="test_secret")
+        flow = OAuthFlow(config)
+        
+        # Mock HTTP response
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "access_token": "secret_token",
+            "token_type": "Bearer",
+            "expires_in": 3600
+        }
+        
+        mock_client = AsyncMock()
+        mock_client.post.return_value = mock_response
+        
+        async with flow:
+            flow._http_client = mock_client
+            
+            token = await flow.exchange_code_for_token("test_code")
+            
+            # Verify client secret was included
+            mock_client.post.assert_called_once()
+            call_args = mock_client.post.call_args
+            assert call_args[1]["data"]["client_secret"] == "test_secret"
+    
+    @pytest.mark.asyncio
+    async def test_exchange_code_failure(self):
+        """Test handling of code exchange failure."""
+        config = OAuthConfig()
+        flow = OAuthFlow(config)
+        
+        # Mock failed HTTP response
+        mock_response = Mock()
+        mock_response.status_code = 400
+        mock_response.text = "Invalid code"
+        
+        mock_client = AsyncMock()
+        mock_client.post.return_value = mock_response
+        
+        async with flow:
+            flow._http_client = mock_client
+            
+            with pytest.raises(AuthenticationError, match="Token exchange failed: 400"):
+                await flow.exchange_code_for_token("bad_code")
+    
+    @pytest.mark.asyncio
+    async def test_refresh_token_preserves_refresh_token(self):
+        """Test that refresh token is preserved if not in response."""
+        config = OAuthConfig()
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        flow = OAuthFlow(config, storage)
+        
+        # Mock response without new refresh token
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "access_token": "new_token",
+            "token_type": "Bearer",
+            "expires_in": 3600
+        }
+        
+        mock_client = AsyncMock()
+        mock_client.post.return_value = mock_response
+        
+        async with flow:
+            flow._http_client = mock_client
+            
+            token = await flow.refresh_token("original_refresh_token")
+            
+            # Original refresh token should be preserved
+            assert token.refresh_token == "original_refresh_token"
+            
+            # Token should be saved
+            saved = storage.load_token()
+            assert saved.refresh_token == "original_refresh_token"
+    
+    @pytest.mark.asyncio
+    async def test_get_valid_token_refresh_expired(self):
+        """Test getting valid token when current is expired."""
+        config = OAuthConfig()
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        # Save expired token with refresh token
+        expired_token = AuthToken(
+            access_token="old_token",
+            expires_at=datetime.now() - timedelta(hours=1),
+            refresh_token="refresh_token"
+        )
+        storage.save_token(expired_token)
+        
+        flow = OAuthFlow(config, storage)
+        
+        # Mock successful refresh
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "access_token": "refreshed_token",
+            "token_type": "Bearer",
+            "expires_in": 3600
+        }
+        
+        mock_client = AsyncMock()
+        mock_client.post.return_value = mock_response
+        
+        async with flow:
+            flow._http_client = mock_client
+            
+            token = await flow.get_valid_token()
+            
+            assert token is not None
+            assert token.access_token == "refreshed_token"
+            assert not token.is_expired()
+    
+    @pytest.mark.asyncio
+    async def test_get_valid_token_refresh_fails(self):
+        """Test handling when token refresh fails."""
+        config = OAuthConfig()
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        # Save expired token
+        expired_token = AuthToken(
+            access_token="old_token",
+            expires_at=datetime.now() - timedelta(hours=1),
+            refresh_token="bad_refresh_token"
+        )
+        storage.save_token(expired_token)
+        
+        flow = OAuthFlow(config, storage)
+        
+        # Mock failed refresh
+        mock_response = Mock()
+        mock_response.status_code = 401
+        mock_response.text = "Invalid refresh token"
+        
+        mock_client = AsyncMock()
+        mock_client.post.return_value = mock_response
+        
+        async with flow:
+            flow._http_client = mock_client
+            
+            token = await flow.get_valid_token()
+            
+            # Should return None and clear storage
+            assert token is None
+            assert storage.load_token() is None
+
+
+class TestClaudeAuthAdvanced:
+    """Advanced ClaudeAuth tests."""
+    
+    @pytest.mark.asyncio
+    async def test_oauth_authentication_with_existing_token(self):
+        """Test OAuth auth when valid token exists."""
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        # Save valid token
+        valid_token = AuthToken(
+            access_token="existing_token",
+            token_type="Bearer",
+            expires_at=datetime.now() + timedelta(hours=1)
+        )
+        storage.save_token(valid_token)
+        
+        async with ClaudeAuth(use_oauth=True, token_storage=storage) as auth:
+            headers = await auth.authenticate()
+            
+            assert headers == {"Authorization": "Bearer existing_token"}
+    
+    @pytest.mark.asyncio
+    async def test_oauth_authentication_performs_flow(self):
+        """Test OAuth auth performs full flow when no token."""
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        async with ClaudeAuth(use_oauth=True, token_storage=storage) as auth:
+            # Mock the OAuth flow
+            with patch.object(auth, 'perform_oauth_flow') as mock_flow:
+                mock_token = AuthToken(
+                    access_token="new_token",
+                    token_type="Bearer"
+                )
+                mock_flow.return_value = mock_token
+                
+                headers = await auth.authenticate()
+                
+                assert headers == {"Authorization": "Bearer new_token"}
+                mock_flow.assert_called_once()
+    
+    @pytest.mark.asyncio
+    async def test_perform_oauth_flow(self):
+        """Test full OAuth flow execution."""
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        async with ClaudeAuth(use_oauth=True, token_storage=storage) as auth:
+            # We'll mock the key components
+            with patch('webbrowser.open') as mock_browser, \
+                 patch.object(LocalCallbackServer, 'start', new_callable=AsyncMock) as mock_start, \
+                 patch.object(LocalCallbackServer, 'wait_for_code', new_callable=AsyncMock) as mock_wait:
+                
+                mock_wait.return_value = "auth_code_123"
+                
+                # Mock token exchange
+                mock_response = Mock()
+                mock_response.status_code = 200
+                mock_response.json.return_value = {
+                    "access_token": "flow_token",
+                    "token_type": "Bearer",
+                    "expires_in": 3600
+                }
+                
+                auth._oauth_flow._http_client = AsyncMock()
+                auth._oauth_flow._http_client.post.return_value = mock_response
+                
+                token = await auth.perform_oauth_flow()
+                
+                assert token.access_token == "flow_token"
+                mock_browser.assert_called_once()
+                mock_start.assert_called_once()
+                mock_wait.assert_called_once()
+    
+    def test_get_env_vars_expired_oauth_token(self):
+        """Test env vars when OAuth token is expired."""
+        storage = TokenStorage(Path(tempfile.mkdtemp()) / "tokens.json")
+        
+        # Save expired token
+        expired_token = AuthToken(
+            access_token="expired_token",
+            expires_at=datetime.now() - timedelta(hours=1)
+        )
+        storage.save_token(expired_token)
+        
+        auth = ClaudeAuth(use_oauth=True, token_storage=storage)
+        env_vars = auth.get_env_vars()
+        
+        # Should return empty dict for expired token
+        assert env_vars == {}
+    
+    @pytest.mark.asyncio
+    async def test_context_manager_cleanup(self):
+        """Test proper cleanup in context manager."""
+        auth = ClaudeAuth(use_oauth=True)
+        
+        # Enter context
+        await auth.__aenter__()
+        assert auth._oauth_flow is not None
+        
+        # Exit context
+        await auth.__aexit__(None, None, None)
+        # OAuth flow should be cleaned up (hard to test internals)
+    
+    @pytest.mark.asyncio
+    async def test_authentication_without_context_manager(self):
+        """Test error when using OAuth without context manager."""
+        auth = ClaudeAuth(use_oauth=True)
+        
+        with pytest.raises(RuntimeError, match="ClaudeAuth must be used as async context manager"):
+            await auth.authenticate()
+
+
+class TestTokenStorageEdgeCases:
+    """Test edge cases for token storage."""
+    
+    def test_storage_directory_creation(self):
+        """Test storage creates parent directories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Use nested path that doesn't exist
+            storage_path = Path(tmpdir) / "deep" / "nested" / "path" / "tokens.json"
+            storage = TokenStorage(storage_path)
+            
+            # Parent directories should be created
+            assert storage.storage_path.parent.exists()
+            
+            # Save a token to verify it works
+            token = AuthToken(access_token="test")
+            storage.save_token(token)
+            assert storage_path.exists()
+    
+    def test_storage_handles_corrupted_file(self):
+        """Test storage handles corrupted JSON file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            storage_path = Path(tmpdir) / "tokens.json"
+            storage = TokenStorage(storage_path)
+            
+            # Write corrupted JSON
+            storage_path.write_text("{ corrupted json")
+            
+            # Should return None instead of crashing
+            token = storage.load_token()
+            assert token is None
+    
+    def test_storage_preserves_existing_data(self):
+        """Test storage preserves other data in file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            storage_path = Path(tmpdir) / "tokens.json"
+            storage = TokenStorage(storage_path)
+            
+            # Write existing data
+            existing_data = {
+                "other_key": "other_value",
+                "nested": {"data": "preserved"}
+            }
+            storage_path.write_text(json.dumps(existing_data))
+            
+            # Save token
+            token = AuthToken(access_token="new_token")
+            storage.save_token(token)
+            
+            # Load and check
+            data = json.loads(storage_path.read_text())
+            assert data["other_key"] == "other_value"
+            assert data["nested"]["data"] == "preserved"
+            assert "token" in data
+            assert "updated_at" in data
+    
+    def test_delete_nonexistent_token(self):
+        """Test deleting when no token file exists."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            storage_path = Path(tmpdir) / "tokens.json"
+            storage = TokenStorage(storage_path)
+            
+            # Should not raise error
+            storage.delete_token()
+            assert not storage_path.exists()
+
+
+class TestOAuthConfigEnvVarPrecedence:
+    """Test environment variable precedence in OAuth config."""
+    
+    def test_explicit_values_override_env(self):
+        """Test explicit values take precedence over env vars."""
+        with patch.dict("os.environ", {
+            "CLAUDE_OAUTH_CLIENT_ID": "env_id",
+            "CLAUDE_OAUTH_CLIENT_SECRET": "env_secret",
+        }):
+            config = OAuthConfig(
+                client_id="explicit_id",
+                client_secret="explicit_secret"
+            )
+            
+            assert config.client_id == "explicit_id"
+            assert config.client_secret == "explicit_secret"
+    
+    def test_partial_env_override(self):
+        """Test mixing env vars and explicit values."""
+        with patch.dict("os.environ", {
+            "CLAUDE_OAUTH_CLIENT_ID": "env_id",
+            "CLAUDE_OAUTH_REDIRECT_URI": "http://env.redirect",
+        }):
+            config = OAuthConfig(
+                client_secret="explicit_secret"
+            )
+            
+            assert config.client_id == "env_id"  # From env
+            assert config.client_secret == "explicit_secret"  # Explicit
+            assert config.redirect_uri == "http://env.redirect"  # From env
+
+
+# Convenience function tests
+@pytest.mark.asyncio
+async def test_login_function():
+    """Test the login convenience function."""
+    from claude_code_sdk.auth import login
+    
+    with patch('claude_code_sdk.auth.ClaudeAuth') as mock_auth_class:
+        mock_auth = AsyncMock()
+        mock_auth.__aenter__.return_value = mock_auth
+        mock_auth.__aexit__.return_value = None
+        mock_auth.perform_oauth_flow.return_value = AuthToken(access_token="test")
+        mock_auth_class.return_value = mock_auth
+        
+        await login()
+        
+        mock_auth_class.assert_called_once_with(use_oauth=True)
+        mock_auth.perform_oauth_flow.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_logout_function():
+    """Test the logout convenience function."""
+    from claude_code_sdk.auth import logout
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a token file
+        storage_path = Path(tmpdir) / ".claude_code" / "tokens.json"
+        storage_path.parent.mkdir(parents=True)
+        storage_path.write_text('{"token": {"access_token": "test"}}')
+        
+        with patch('claude_code_sdk.auth.TokenStorage') as mock_storage_class:
+            mock_storage = Mock()
+            mock_storage.delete_token = Mock()
+            mock_storage_class.return_value = mock_storage
+            
+            await logout()
+            
+            mock_storage.delete_token.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_auth_headers_function():
+    """Test the get_auth_headers convenience function."""
+    from claude_code_sdk.auth import get_auth_headers
+    
+    with patch('claude_code_sdk.auth.ClaudeAuth') as mock_auth_class:
+        mock_auth = AsyncMock()
+        mock_auth.__aenter__.return_value = mock_auth
+        mock_auth.__aexit__.return_value = None
+        mock_auth.authenticate.return_value = {"Authorization": "Bearer test"}
+        mock_auth_class.return_value = mock_auth
+        
+        headers = await get_auth_headers()
+        
+        assert headers == {"Authorization": "Bearer test"}
+        mock_auth.authenticate.assert_called_once()
